@@ -1,0 +1,325 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+
+    <title>flag管理器</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+    <style>
+    	.contenner{
+            background: url("img/bg5.jpg");
+            height: 1500px;
+        }
+
+        .contenner button{
+            opacity: 0.8;
+        }
+        .contenner table{
+            width: 80%;
+            background-color: white;
+            opacity: 0.8;
+        }
+        .name {
+            text-align: center;
+            font-size: 66px;
+            text-shadow: 3px 5px grey, 1px 1px #333;
+        }
+        .noExtension {
+            width: 60%;
+            height: 100px;
+            margin: auto;
+            font-size: 23px;
+        }
+        .make_flag {
+            width: 80%;
+            height: 100px;
+            margin: auto;
+        }
+
+        #content {
+            opacity: 0.8;
+            width: 80%;
+            height: 100px;
+            box-shadow: 3px 5px grey, 1px 1px #333;
+        }
+        #time {
+            opacity: 0.8;
+            width: 80%;
+            height: 50px;
+            box-shadow: 3px 5px grey, 1px 1px #333;
+        }
+        .submit button {
+            opacity: 0.8;
+            width: 30%;
+            height: 50px;
+            margin: auto;
+            box-shadow: 3px 5px grey, 1px 1px #333;
+        }
+        .hide {
+        	display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenner">
+	
+	<div class="noExtension hide" id="noExtension">
+        NOTE: Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>  to use Flag Manager.
+    </div>
+    
+	<div class="make_flag">
+        <div class="name">Flag 管理器</div>
+        <br>
+        <h2>立个Flag</h2>
+
+        <textarea id="content" placeholder="请输入flag内容"></textarea>
+        <br>
+		<input type="text" id="time" placeholder="请输入计划完成时间">
+        <br><br>
+        <button id="submit" class="btn btn-primary" data-loading-text="Loading..." 
+            type="button"> 提交
+        </button>
+        <br>
+        <br>
+        <h2>我的Flag</h2>
+        <button id="refresh" class="btn btn-primary" data-loading-text="Loading..." 
+            type="button"> 更新
+        </button>
+        <!-- <button id="test">测试</button> -->
+        <br><br>
+        <table class="table table-striped" id='tab' >
+            <thead>
+                <tr>
+                    <th>Flag内容</th>
+                    <th>计划完成时间</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+	</div>
+</div>
+
+
+
+<script src=lib/nebPay.js></script>
+<script src=lib/jquery-3.3.1.min.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+<script>  //设定变量、地址和钱包
+    var dappAddress = "n1zYQAScfYhkjujF9TuWafaEveSsjwPmvxA" //测试网
+    // var storage = window.localStorage;
+    var table = document.getElementById("tab");
+    //浏览器加载判断是否安装NAS钱包
+    $().ready(function(){
+        setTimeout(function(){
+            checkNebulasWallet();
+        }, 500);
+    });
+
+    //检测浏览器是否安装星云钱包
+    function checkNebulasWallet(){
+        try{
+            var NebPay = require("nebpay");
+            var nebpay = new NebPay();
+            $('#title').removeAttr("disabled");
+            $('#textarea').removeAttr("disabled");
+            console.log('星云钱包环境运行成功');
+        }catch(e){
+            console.log('星云钱包环境运行错误', e);
+        }
+    }
+
+    // 检查一次现在的值
+    window.postMessage({
+            "target": "contentscript",
+            "data":{
+                "to" : dappAddress,
+                "value" : "0",
+                "contract" : {
+                    "function" : "getFlagsInfo",
+                    "args" : ""
+                }
+            },
+            "method": "neb_call"
+        }, "*");
+
+    function insert2Table(des, time, table){
+        oneRow = table.insertRow();
+        cell1 = oneRow.insertCell();
+        cell2 = oneRow.insertCell();
+        cell1.innerHTML = des
+        cell2.innerHTML = time
+    }
+</script>
+<script>
+	$("#submit").click(function(){
+		var content = $("#content").val()
+		var time = $("#time").val()
+        if (time === "") {
+            throw new Error("计划时间不能为空！");
+        }
+        if (content === "") {
+            throw new Error("计划内容不能为空！");
+        }
+        //提交现有内容
+        window.postMessage({
+            "target": "contentscript",
+            "data":{
+                "to" : dappAddress,
+                "value" : "0",
+                "contract" : {
+                    "function" : "setFlagsInfo",
+                    "args" : "[\"" + time + "\",\"" + content + "\"]"
+                }
+            },
+            "method": "neb_sendTransaction"
+        }, "*");
+	})
+</script>
+<script> //更新值
+    $("#refresh").click(
+        function(){
+        // 检查一次现在的值
+        window.postMessage({
+            "target": "contentscript",
+            "data":{
+                "to" : dappAddress,
+                "value" : "0",
+                "contract" : {
+                    "function" : "getFlagsInfo",
+                    "args" : ""
+                }
+            },
+            "method": "neb_call"
+        }, "*");
+
+        }
+    )  
+</script>
+<script>
+    $("#test").click(function(){
+        // var flags = null
+        // flags = JSON.parse("[]");
+        // flags.push(JSON.parse("{\"a\":1}"))
+        // console.log(flags);
+
+        window.postMessage({
+            "target": "contentscript",
+            "data":{
+                "to" : dappAddress,
+                "value" : "0",
+                "contract" : {
+                    "function" : "getFlagsInfo",
+                    "args" : ""
+                }
+            },
+            "method": "neb_call"
+        }, "*");
+
+        // time = "pages2"
+        // content = "wjaiou"
+        // window.postMessage({
+        //     "target": "contentscript",
+        //     "data":{
+        //         "to" : dappAddress,
+        //         "value" : "0",
+        //         "contract" : {
+        //             "function" : "setFlagsInfo",
+        //             "args" : "[\"" + time + "\",\"" + content + "\"]"
+        //         }
+        //     },
+        //     "method": "neb_sendTransaction"
+        // }, "*");
+
+    })
+</script>
+<script>  //监听变换情况并及时反应
+    window.addEventListener('message', function(e) {
+
+        var neb_call = "";
+        var neb_sendTransaction = "";
+        var contract = ""
+        var method = "";
+
+        try{
+            contract = e.data.data.contract;
+            method = e.data.method;
+            neb_call = e.data.data.neb_call.result;
+            neb_sendTransaction = e.data.data.neb_sendTransaction.result;
+        }catch (err){
+
+        }
+
+        // console.log('contract: ', contract);
+        // console.log('method: ', method);
+        // console.log('neb_call: ', neb_call);
+        // console.log('neb_sendTransaction: ', neb_sendTransaction);
+
+        if(contract && (method == "neb_call")){
+            return;
+        }else if(contract && (method == "neb_sendTransaction")){
+            setTimeout(function(){
+                $('#loading').css('display', 'none');
+                $('#time').val("");
+                $('#content').val("");        
+                alert('发布已完成，可通过查询TxHash看发布状态。');       
+            }, 1000*15);
+        }else{
+            //查询日记状态
+            if(neb_call && neb_call != 'null'){
+                pageFlags = JSON.parse(neb_call);
+                var rowNum=table.rows.length; //先清空所有行
+                for (k=1;k<rowNum;k++) table.deleteRow(1);
+                var len = pageFlags.length; //再重新写入
+                for (var i = 0; i < len; i++) {
+                    console.log(pageFlags[i]); 
+                    for(time in pageFlags[i]){
+                        des = pageFlags[i][time]
+                        insert2Table(des, time, table)
+                    }   
+                }
+                console.log(pageFlags); 
+            }else{
+                // $('#diaryBook').css('display', 'none');
+                // $('#submitButton').css('display', 'block');
+            }
+        }
+
+
+
+
+        //合约调用不执行以下代码
+        // if(contract && (method == "neb_call")){
+        //     return;
+        // }else if(contract && (method == "neb_sendTransaction")){
+        //     setTimeout(function(){
+        //         $('#loading').css('display', 'none');
+        //         $('#title').val("");
+        //         $('#textarea').val("");        
+        //         alert('发布已完成，请通过查询TxHash看日记状态。');       
+        //     }, 1000*15);
+        // }else{
+        //     //查询日记状态
+        //     if(neb_call && neb_call != 'null'){
+        //         neb_call = JSON.parse(neb_call);
+        //         $('#diaryTitle').html(neb_call.title);
+        //         $('#diaryContent').html(neb_call.content);
+        //         $('#diaryBook').css('display', 'block');
+        //         $('#submitButton').css('display', 'none');
+        //     }else{
+        //         $('#diaryBook').css('display', 'none');
+        //         $('#submitButton').css('display', 'block');
+        //     }
+
+        //     $('#loading').css('display', 'none');
+        // }
+
+    });
+</script>
+</body>
+</html>
