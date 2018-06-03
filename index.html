@@ -39,6 +39,11 @@
             height: 100px;
             margin: auto;
         }
+        .make_flag p{
+            opacity: 0.8;
+            width: 80%;
+            margin: left;
+        }
 
         #content {
             opacity: 0.8;
@@ -75,6 +80,7 @@
 	<div class="make_flag">
         <div class="name">Flag 管理器</div>
         <br>
+        <p>使用说明：输入Flag内容及完成时间，点击“提交”按钮可完成数据上传。待数据上传完成后，点击“更新”按钮或刷新页面即可更新“我的Flag”表格。</p>
         <h2>立个Flag</h2>
 
         <textarea id="content" placeholder="请输入flag内容"></textarea>
@@ -102,6 +108,7 @@
             <tbody>
             </tbody>
         </table>
+        <p id='count'></p>
 	</div>
 </div>
 
@@ -116,6 +123,7 @@
     var dappAddress = "n1ysEtzQi3JSsyEwDbe86gC1DatMtDjh4BU"  //主网
     // var storage = window.localStorage;
     var table = document.getElementById("tab");
+    var countP = document.getElementById("count");
     //浏览器加载判断是否安装NAS钱包
     $().ready(function(){
         setTimeout(function(){
@@ -285,41 +293,15 @@
                         insert2Table(des, time, table)
                     }   
                 }
+                countP.innerHTML = "您已经立下Flag " + len.toString() +  "条,加油哦！";
                 console.log(pageFlags); 
+
+
             }else{
                 // $('#diaryBook').css('display', 'none');
                 // $('#submitButton').css('display', 'block');
             }
         }
-
-
-
-
-        //合约调用不执行以下代码
-        // if(contract && (method == "neb_call")){
-        //     return;
-        // }else if(contract && (method == "neb_sendTransaction")){
-        //     setTimeout(function(){
-        //         $('#loading').css('display', 'none');
-        //         $('#title').val("");
-        //         $('#textarea').val("");        
-        //         alert('发布已完成，请通过查询TxHash看日记状态。');       
-        //     }, 1000*15);
-        // }else{
-        //     //查询日记状态
-        //     if(neb_call && neb_call != 'null'){
-        //         neb_call = JSON.parse(neb_call);
-        //         $('#diaryTitle').html(neb_call.title);
-        //         $('#diaryContent').html(neb_call.content);
-        //         $('#diaryBook').css('display', 'block');
-        //         $('#submitButton').css('display', 'none');
-        //     }else{
-        //         $('#diaryBook').css('display', 'none');
-        //         $('#submitButton').css('display', 'block');
-        //     }
-
-        //     $('#loading').css('display', 'none');
-        // }
 
     });
 </script>
