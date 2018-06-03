@@ -29,9 +29,8 @@
             text-shadow: 3px 5px grey, 1px 1px #333;
         }
         .noExtension {
-            width: 60%;
-            height: 100px;
-            margin: auto;
+            background-color: red;
+            margin: left;
             font-size: 23px;
         }
         .make_flag {
@@ -73,14 +72,15 @@
 
 <div class="contenner">
 	
-	<div class="noExtension hide" id="noExtension">
-        NOTE: Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>  to use Flag Manager.
-    </div>
+	
     
 	<div class="make_flag">
         <div class="name">Flag 管理器</div>
         <br>
-        <p>使用说明：输入Flag内容及完成时间，点击“提交”按钮可完成数据上传。待数据上传完成后，点击“更新”按钮或刷新页面即可更新“我的Flag”表格。</p>
+        <div class="noExtension hide" id="noExtension">
+        NOTE: Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>  to use Flag Manager.
+        </div>
+        <p>使用说明：本应用需要使用<a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>作为数据传输工具。输入Flag内容及完成时间，点击“提交”按钮可完成数据上传。待数据上传完成后，点击“更新”按钮或刷新页面即可更新“我的Flag”表格。</p>
         <h2>立个Flag</h2>
 
         <textarea id="content" placeholder="请输入flag内容"></textarea>
@@ -124,6 +124,24 @@
     // var storage = window.localStorage;
     var table = document.getElementById("tab");
     var countP = document.getElementById("count");
+
+    $("#time").attr("disabled",true)
+    $("#content").attr("disabled",true)
+    $("#submit").attr("disabled",true)
+    $("#refresh").attr("disabled",true)
+    //to check if the extension is installed
+    //if the extension is installed, var "webExtensionWallet" will be injected in to web page
+    if(typeof(webExtensionWallet) === "undefined"){
+        //alert ("Extension wallet is not installed, please install it first.")
+        $("#noExtension").removeClass("hide")
+    }else{
+        $("#time").attr("disabled",false)
+        $("#content").attr("disabled",false)
+        $("#submit").attr("disabled",false)
+        $("#refresh").attr("disabled",false)
+    }
+
+
     //浏览器加载判断是否安装NAS钱包
     $().ready(function(){
         setTimeout(function(){
@@ -136,8 +154,6 @@
         try{
             var NebPay = require("nebpay");
             var nebpay = new NebPay();
-            $('#title').removeAttr("disabled");
-            $('#textarea').removeAttr("disabled");
             console.log('星云钱包环境运行成功');
         }catch(e){
             console.log('星云钱包环境运行错误', e);
